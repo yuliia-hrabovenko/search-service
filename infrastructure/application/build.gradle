@@ -1,0 +1,25 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id "org.springframework.boot" version "${springBootVersion}"
+    id "io.spring.dependency-management" version "${springDependencyManagement}"
+}
+
+bootJar {
+    archivesBaseName = 'search'
+}
+
+dependencies {
+    implementation project(':domain')
+    implementation project(':infrastructure:rest')
+    implementation project(':infrastructure:rest:openapi')
+    implementation project(':infrastructure:elastic-search')
+    implementation project(':infrastructure:sqs-connector')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+}

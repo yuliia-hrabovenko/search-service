@@ -1,0 +1,11 @@
+plugins {
+    id 'checkstyle'
+}
+
+dependencies {
+    implementation project(':domain')
+
+    implementation libs.logging
+
+    implementation "org.springframework:spring-context"
+}

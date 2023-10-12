@@ -1,0 +1,16 @@
+pluginManagement {
+	repositories {
+		maven { url 'https://repo.spring.io/milestone' }
+		maven { url 'https://repo.spring.io/snapshot' }
+		gradlePluginPortal()
+	}
+}
+rootProject.name = 'search'
+
+include 'domain'
+include 'infrastructure:application'
+include 'infrastructure:elastic-search'
+include 'infrastructure:rest'
+include 'infrastructure:rest:openapi'
+include 'infrastructure:sqs-connector'
+

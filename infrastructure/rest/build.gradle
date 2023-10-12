@@ -1,0 +1,67 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+    id 'checkstyle'
+    id "org.openapi.generator"
+    id 'org.jetbrains.gradle.plugin.idea-ext'
+}
+
+dependencies {
+    implementation project(':domain')
+    implementation project(':infrastructure:rest:openapi')
+
+    implementation libs.openapi
+    implementation libs.javaxAnnotation
+    implementation libs.javaxServlet
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src/main/java", "$buildDir/generated/openapi/main/java"]
+        }
+    }
+}
+
+tasks.register('generateOpenApi', GenerateTask) {
+    generatorName = "spring"
+    inputSpec = "$projectDir/openapi/src/main/resources/openapi.yaml".toString()
+    outputDir = "$buildDir/generated/openapi".toString()
+    apiPackage = "net.guzari.search.openapi.api"
+    invokerPackage = "net.guzari.search.openapi.invoker"
+    modelPackage = "net.guzari.search.openapi.model"
+    modelNameSuffix = "Dto"
+    configOptions = [
+            dateLibrary            : "java8",
+            interfaceOnly          : "true",
+            useTags                : "true",
+            skipDefaultInterface   : "true",
+            hideGenerationTimestamp: "true",
+            implicitHeaders        : "true",
+            sourceFolder           : "main/java"
+    ]
+    groupId = "net.guzari.search.openapi"
+}
+
+openApiValidate {
+    inputSpec = "$projectDir/openapi/src/main/resources/openapi.yaml".toString()
+}
+
+tasks.register('buildOpenapi') {
+    dependsOn tasks.generateOpenApi
+    dependsOn tasks.openApiValidate
+}
+
+compileJava.dependsOn buildOpenapi
+
+afterEvaluate {
+    rootProject.extensions.idea.project.settings {
+        taskTriggers {
+            afterSync(tasks.buildOpenapi)
+        }
+    }
+}
+

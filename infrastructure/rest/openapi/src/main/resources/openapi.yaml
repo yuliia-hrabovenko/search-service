@@ -1,0 +1,79 @@
+openapi: 3.0.0
+info:
+  title: Search Service
+  version: 1.0.0
+paths:
+  /api/foo:
+    post:
+      tags:
+        - foo
+      summary: Foo controller
+      operationId: foo
+      requestBody:
+        description: Foo request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FooRequest'
+      responses:
+        200:
+          description: Success request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FooResponse'
+        400:
+          description: User input error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: Auth error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Auth error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Server Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+
+    FooRequest:
+      type: object
+      properties:
+        data:
+          type: string
+      required:
+        - data
+
+    FooResponse:
+      type: object
+      properties:
+        data:
+          type: string
+      required:
+        - data
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - message
+        - code
+
