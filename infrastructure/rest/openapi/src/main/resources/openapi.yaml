@@ -3,39 +3,31 @@ info:
   title: Search Service
   version: 1.0.0
 paths:
-  /api/foo:
-    post:
+  /api/report/autocomplete:
+    get:
       tags:
-        - foo
-      summary: Foo controller
-      operationId: foo
-      requestBody:
-        description: Foo request
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FooRequest'
+        - report
+      operationId: reportAutocomplete
+      summary: Get list of report id and report title by keywords
+      parameters:
+        - in: query
+          name: keywords
+          required: true
+          schema:
+            type: string
+            maxLength: 20
+            minLength: 1
       responses:
         200:
-          description: Success request
+          description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FooResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportIdAndTitle'
         400:
           description: User input error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        401:
-          description: Auth error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        403:
-          description: Auth error
           content:
             application/json:
               schema:
@@ -46,26 +38,99 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+  /api/report/{id}:
+    get:
+      tags:
+        - report
+      operationId: findById
+      summary: Get report by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        400:
+          description: User input error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Server Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/report/search:
+    get:
+      tags:
+        - report
+      operationId: findReports
+      summary: Get reports by keywords
+      parameters:
+        - in: query
+          name: keywords
+          required: true
+          schema:
+            type: string
+            maxLength: 20
+            minLength: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Report'
+        400:
+          description: User input error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Server Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
-
-    FooRequest:
+    Report:
       type: object
       properties:
-        data:
+        id:
           type: string
-      required:
-        - data
-
-    FooResponse:
+        title:
+          type: string
+        authors:
+          type: array
+          items:
+            type: string
+        target:
+          type: string
+        content:
+          type: string
+        created:
+          type: string
+          format: instant
+    ReportIdAndTitle:
       type: object
       properties:
-        data:
+        id:
           type: string
-      required:
-        - data
-
+        title:
+          type: string
     Error:
       type: object
       properties:
@@ -73,7 +138,3 @@ components:
           type: integer
         message:
           type: string
-      required:
-        - message
-        - code
-
