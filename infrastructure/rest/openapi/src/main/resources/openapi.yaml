@@ -32,6 +32,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        401:
+          description: Auth error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         500:
           description: Server Internal Error
           content:
@@ -59,6 +65,12 @@ paths:
                 $ref: '#/components/schemas/Report'
         400:
           description: User input error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: Auth error
           content:
             application/json:
               schema:
@@ -94,6 +106,12 @@ paths:
                   $ref: '#/components/schemas/Report'
         400:
           description: User input error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: Auth error
           content:
             application/json:
               schema:

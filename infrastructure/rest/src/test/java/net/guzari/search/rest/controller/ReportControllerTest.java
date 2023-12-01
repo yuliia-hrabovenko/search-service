@@ -1,8 +1,11 @@
 package net.guzari.search.rest.controller;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import net.guzari.search.domain.report.ReportService;
 import net.guzari.search.rest.mapper.ReportDtoMapper;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,6 +14,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 
 import static net.guzari.search.rest.controller.ReportDataReceiver.*;
@@ -22,6 +27,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = TestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class ReportControllerTest {
+    public static final String EMAIL = "test@gmail.com";
+    public static final String BEARER = "Bearer ";
+    public static final String JWT_SIGNING_KEY = "secret";
+    public static final Long EXPIRATION = 60_000L;
+    private static String TOKEN;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -31,13 +42,60 @@ public class ReportControllerTest {
     @MockBean
     private ReportDtoMapper mapper;
 
+    @BeforeEach
+    public void setUp() {
+        TOKEN = getBearerToken(new Date());
+    }
+
+    private static String getBearerToken(Date date) {
+        Date expiryDate = new Date(date.getTime() + EXPIRATION);
+        return BEARER + Jwts.builder()
+                .setSubject(EMAIL)
+                .setIssuedAt(date)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, JWT_SIGNING_KEY)
+                .compact();
+    }
+
+    @Test
+    void givenEmptyAuthorizationHeader_findReports_thenThrowValidationException() throws Exception {
+        mockMvc.perform(get("/api/report/search")
+                        .queryParam("keywords", KEYWORDS)
+                        .header("Authorization", ""))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
+                .andExpect(jsonPath("$.code", Matchers.is(401)))
+                .andExpect(jsonPath("$.message", Matchers.is(AUTH_HEADER_EXCEPTION.getMessage())));
+    }
+
+    @Test
+    void givenExpiredToken_findReports_thenThrowValidationException() throws Exception {
+        Date date = Date.from(Instant.now().minusSeconds(70));
+        mockMvc.perform(get("/api/report/search")
+                        .queryParam("keywords", KEYWORDS)
+                        .header("Authorization", getBearerToken(date)))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
+                .andExpect(jsonPath("$.code", Matchers.is(401)))
+                .andExpect(jsonPath("$.message", Matchers.is(EXPIRED_TOKEN_EXCEPTION.getMessage())));
+    }
+
+    @Test
+    void givenInvalidToken_findReports_thenThrowValidationException() throws Exception {
+        mockMvc.perform(get("/api/report/search")
+                        .queryParam("keywords", KEYWORDS)
+                        .header("Authorization", TOKEN + "12"))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
+                .andExpect(jsonPath("$.code", Matchers.is(401)))
+                .andExpect(jsonPath("$.message", Matchers.is(INVALID_TOKEN_EXCEPTION.getMessage())));
+    }
+
     @Test
     void givenKeywords_findReports_thenReturnReports() throws Exception {
         when(reportService.findReports(KEYWORDS)).thenReturn(getReports());
         when(mapper.toDto(getReport1())).thenReturn(getReportDto());
         when(mapper.toDto(getReport2())).thenReturn(getReportDto2());
         mockMvc.perform(get("/api/report/search")
-                        .queryParam("keywords", KEYWORDS))
+                        .queryParam("keywords", KEYWORDS)
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", Matchers.is(ID_1)))
@@ -51,7 +109,8 @@ public class ReportControllerTest {
     @Test
     void givenNoReportsByKeywords_findReports_thenReturnEmptyReportsList() throws Exception {
         mockMvc.perform(get("/api/report/search")
-                .queryParam("keywords", KEYWORDS))
+                        .queryParam("keywords", KEYWORDS)
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
@@ -59,7 +118,8 @@ public class ReportControllerTest {
     @Test
     void givenEmptyKeywords_findReports_thenThrowValidationException() throws Exception {
         mockMvc.perform(get("/api/report/search")
-                .queryParam("keywords", ""))
+                        .queryParam("keywords", "")
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andExpect(jsonPath("$.code", Matchers.is(400)))
                 .andExpect(jsonPath("$.message", Matchers.is(VALIDATION_EXCEPTION.getMessage())));
@@ -69,7 +129,8 @@ public class ReportControllerTest {
     void givenTooLongKeywords_findReports_thenThrowValidationException() throws Exception {
         when(reportService.findReports(KEYWORDS)).thenReturn(getReports());
         mockMvc.perform(get("/api/report/search")
-                .queryParam("keywords", LONG_KEYWORDS))
+                        .queryParam("keywords", LONG_KEYWORDS)
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andExpect(jsonPath("$.code", Matchers.is(400)))
                 .andExpect(jsonPath("$.message", Matchers.is(VALIDATION_EXCEPTION.getMessage())));
@@ -81,7 +142,8 @@ public class ReportControllerTest {
         when(mapper.toIdAndTitleDto(getReport1())).thenReturn(getIdAndTitleDto());
         when(mapper.toIdAndTitleDto(getReport2())).thenReturn(getIdAndTitleDto2());
         mockMvc.perform(get("/api/report/autocomplete")
-                .queryParam("keywords", KEYWORDS))
+                        .queryParam("keywords", KEYWORDS)
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(jsonPath("$.[0].id", Matchers.is(ID_1)))
@@ -93,7 +155,8 @@ public class ReportControllerTest {
     @Test
     void givenNoReportsByKeywords_reportAutocomplete_thenReturnEmptyReportIdAndTitleDtoList() throws Exception {
         mockMvc.perform(get("/api/report/autocomplete")
-                .queryParam("keywords", KEYWORDS))
+                        .queryParam("keywords", KEYWORDS)
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
@@ -101,7 +164,8 @@ public class ReportControllerTest {
     @Test
     void givenEmptyKeywords_reportAutocomplete_thenThrowValidationException() throws Exception {
         mockMvc.perform(get("/api/report/autocomplete")
-                .queryParam("keywords", ""))
+                        .queryParam("keywords", "")
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andExpect(jsonPath("$.code", Matchers.is(400)))
                 .andExpect(jsonPath("$.message", Matchers.is(VALIDATION_EXCEPTION.getMessage())));
@@ -110,7 +174,8 @@ public class ReportControllerTest {
     @Test
     void givenLongKeywords_reportAutocomplete_thenThrowValidationException() throws Exception {
         mockMvc.perform(get("/api/report/autocomplete")
-                .queryParam("keywords", LONG_KEYWORDS))
+                        .queryParam("keywords", LONG_KEYWORDS)
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andExpect(jsonPath("$.code", Matchers.is(400)))
                 .andExpect(jsonPath("$.message", Matchers.is(VALIDATION_EXCEPTION.getMessage())));
@@ -120,7 +185,8 @@ public class ReportControllerTest {
     void givenReportId_findById_thenReturnReport() throws Exception {
         when(reportService.findById(ID_1)).thenReturn(Optional.ofNullable(getReport1()));
         when(mapper.toDto(getReport1())).thenReturn(getReportDto());
-        mockMvc.perform(get("/api/report/" + ID_1))
+        mockMvc.perform(get("/api/report/" + ID_1)
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.id", Matchers.is(ID_1)))
                 .andExpect(jsonPath("$.title", Matchers.is(TITLE)))
@@ -132,7 +198,8 @@ public class ReportControllerTest {
 
     @Test
     void givenNotExistingId_findById_thenThrowInternalServerError() throws Exception {
-        mockMvc.perform(get("/api/report/" + ID_1))
+        mockMvc.perform(get("/api/report/" + ID_1)
+                        .header("Authorization", TOKEN))
                 .andExpect(MockMvcResultMatchers.status().is5xxServerError())
                 .andExpect(jsonPath("$.code", Matchers.is(500)))
                 .andExpect(jsonPath("$.message", Matchers.is(INTERNAL_SERVER_ERROR.getMessage())));
