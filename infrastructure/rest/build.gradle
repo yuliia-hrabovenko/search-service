@@ -13,10 +13,12 @@ dependencies {
     implementation libs.openapi
     implementation libs.javaxAnnotation
     implementation libs.javaxServlet
+    implementation libs.jjwt
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 sourceSets {
