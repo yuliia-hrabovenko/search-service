@@ -38,6 +38,7 @@ allprojects {
             javaxServlet          : '4.0.1',
             jjwt                  : '0.2',
             testcontainers        : '1.19.1',
+            grpc                  : '2.15.0.RELEASE',
     ]
 
     ext.libs = [

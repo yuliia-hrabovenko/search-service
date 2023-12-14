@@ -41,6 +41,16 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorDto, HttpStatus.valueOf(BAD_REQUEST));
     }
 
+    @ResponseBody
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorDto> handleCustomException(CustomException ex) {
+        logger.error("Error occurred: {}", ex.getMessage(), ex);
+
+        ErrorDto errorDto = buildErrorDto(ex.getCode(), ex.getMessage());
+
+        return new ResponseEntity<>(errorDto, HttpStatus.valueOf(ex.getCode()));
+    }
+
     @Override
     @ResponseBody
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
