@@ -2,9 +2,9 @@ package net.guzari.search.rest.controller;
 
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
-import net.guzari.search.rest.grpc.UserFeatureServiceGrpc;
-import net.guzari.search.rest.grpc.UserRequest;
-import net.guzari.search.rest.grpc.UserResponse;
+import net.guzari.search.grpc.UserFeatureServiceGrpc;
+import net.guzari.search.grpc.UserRequest;
+import net.guzari.search.grpc.UserResponse;
 
 import java.util.Set;
 

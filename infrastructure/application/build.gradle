@@ -19,6 +19,8 @@ dependencies {
     implementation project(':infrastructure:rest:openapi')
     implementation project(':infrastructure:elastic-search')
     implementation project(':infrastructure:sqs-connector')
+    implementation project(':infrastructure:aspect')
+    implementation project(':infrastructure:grpc')
 
     implementation 'org.springframework.boot:spring-boot-starter'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

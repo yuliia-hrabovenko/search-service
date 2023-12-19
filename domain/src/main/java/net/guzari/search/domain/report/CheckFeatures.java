@@ -1,4 +1,4 @@
-package net.guzari.search.rest.aspect;
+package net.guzari.search.domain.report;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,0 +1,12 @@
+plugins {
+    id 'checkstyle'
+}
+
+dependencies {
+    implementation project(':domain')
+    implementation project(':infrastructure:grpc')
+    implementation project(':infrastructure:rest')
+
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation "net.devh:grpc-spring-boot-starter:${libVersions.grpc}"
+}

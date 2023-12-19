@@ -14,16 +14,19 @@ public class DefaultReportService implements ReportService {
     }
 
     @Override
+    @CheckFeatures(Feature.AUTOCOMPLETE)
     public List<Report> reportAutocomplete(String keywords) {
         return reportRepository.reportAutocomplete(keywords);
     }
 
     @Override
+    @CheckFeatures(Feature.SEARCH)
     public List<Report> findReports(String keywords) {
         return reportRepository.findReports(keywords);
     }
 
     @Override
+    @CheckFeatures(Feature.BASE)
     public Optional<Report> findById(String id) {
         return reportRepository.findById(id);
     }

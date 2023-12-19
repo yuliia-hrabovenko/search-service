@@ -5,8 +5,6 @@ import net.guzari.search.domain.report.ReportService;
 import net.guzari.search.openapi.api.ReportApi;
 import net.guzari.search.openapi.model.ReportDto;
 import net.guzari.search.openapi.model.ReportIdAndTitleDto;
-import net.guzari.search.rest.aspect.CheckFeatures;
-import net.guzari.search.rest.aspect.Feature;
 import net.guzari.search.rest.exceptions.CustomException;
 import net.guzari.search.rest.mapper.ReportDtoMapper;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +25,6 @@ public class ReportController implements ReportApi {
     }
 
     @Override
-    @CheckFeatures(Feature.BASE)
     public ResponseEntity<ReportDto> findById(String id) {
         ReportDto reportDto = reportService.findById(id).map(mapper::toDto)
                 .orElseThrow(() -> new CustomException(INTERNAL_SERVER_ERROR));
@@ -36,7 +33,6 @@ public class ReportController implements ReportApi {
     }
 
     @Override
-    @CheckFeatures(Feature.SEARCH)
     public ResponseEntity<List<ReportDto>> findReports(String keywords) {
 
         List<Report> reports = reportService.findReports(keywords);
@@ -45,7 +41,6 @@ public class ReportController implements ReportApi {
     }
 
     @Override
-    @CheckFeatures(Feature.AUTOCOMPLETE)
     public ResponseEntity<List<ReportIdAndTitleDto>> reportAutocomplete(String keywords) {
 
         List<Report> reports = reportService.reportAutocomplete(keywords);

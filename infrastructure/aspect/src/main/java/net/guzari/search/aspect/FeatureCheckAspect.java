@@ -1,14 +1,15 @@
-package net.guzari.search.rest.aspect;
+package net.guzari.search.aspect;
 
 import com.google.protobuf.ProtocolStringList;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.guzari.search.domain.report.CheckFeatures;
 import net.guzari.search.domain.report.UserContext;
+import net.guzari.search.grpc.UserFeatureServiceGrpc;
+import net.guzari.search.grpc.UserRequest;
+import net.guzari.search.grpc.UserResponse;
 import net.guzari.search.rest.exceptions.CustomException;
 import net.guzari.search.rest.exceptions.ExceptionUtil;
-import net.guzari.search.rest.grpc.UserFeatureServiceGrpc;
-import net.guzari.search.rest.grpc.UserRequest;
-import net.guzari.search.rest.grpc.UserResponse;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

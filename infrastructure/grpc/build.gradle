@@ -1,0 +1,7 @@
+plugins {
+    id 'checkstyle'
+}
+
+dependencies {
+    implementation "net.devh:grpc-spring-boot-starter:${libVersions.grpc}"
+}

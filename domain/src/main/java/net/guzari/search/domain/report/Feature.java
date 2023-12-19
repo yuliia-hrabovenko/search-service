@@ -1,4 +1,4 @@
-package net.guzari.search.rest.aspect;
+package net.guzari.search.domain.report;
 
 public enum Feature {
     BASE,
