@@ -26,6 +26,7 @@ import static net.guzari.search.rest.exceptions.ExceptionUtil.buildErrorDto;
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
     public static final int BAD_REQUEST = 400;
+    public static final int PAYMENT_REQUIRED = 402;
     private final Logger logger = LoggerFactory.getLogger(ControllerAdvice.class);
 
     @ResponseBody
@@ -84,5 +85,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         logger.error("Error occurred: {}", ex.getMessage(), ex);
         return new ResponseEntity<>(ExceptionUtil.INTERNAL_SERVER_ERROR,
                 HttpStatus.valueOf(ExceptionUtil.INTERNAL_SERVER_ERROR.getCode()));
+    }
+
+    @ResponseBody
+    @ExceptionHandler(IllegalArgumentException.class)
+    ResponseEntity<ErrorDto> handleIllegalArgumentException(IllegalArgumentException ex) {
+        logger.error("Error occurred: {}", ex.getMessage(), ex);
+        ErrorDto errorDto = buildErrorDto(PAYMENT_REQUIRED, ex.getMessage());
+        return new ResponseEntity<>(errorDto, HttpStatus.valueOf(errorDto.getCode()));
     }
 }

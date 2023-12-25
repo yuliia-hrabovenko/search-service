@@ -8,8 +8,6 @@ import net.guzari.search.domain.report.UserContext;
 import net.guzari.search.grpc.UserFeatureServiceGrpc;
 import net.guzari.search.grpc.UserRequest;
 import net.guzari.search.grpc.UserResponse;
-import net.guzari.search.rest.exceptions.CustomException;
-import net.guzari.search.rest.exceptions.ExceptionUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FeatureCheckAspect {
 
-    public static final int CODE = 402;
     @GrpcClient("grpc-server")
     private UserFeatureServiceGrpc.UserFeatureServiceBlockingStub userFeatureServiceBlockingStub;
 
@@ -36,8 +33,7 @@ public class FeatureCheckAspect {
         ProtocolStringList featuresList = response.getFeaturesList();
         String feature = checkFeatures.value().toString();
         if (!featuresList.contains(feature)) {
-            throw new CustomException(ExceptionUtil.buildErrorDto(CODE,
-                    String.format("%s feature is not available", feature)));
+            throw new IllegalArgumentException(String.format("%s feature is not available", feature));
         }
 
         return joinPoint.proceed();

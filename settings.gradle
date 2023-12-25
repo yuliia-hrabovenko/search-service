@@ -14,5 +14,4 @@ include 'infrastructure:rest'
 include 'infrastructure:rest:openapi'
 include 'infrastructure:sqs-connector'
 include 'infrastructure:aspect'
-include 'infrastructure:grpc'
 
