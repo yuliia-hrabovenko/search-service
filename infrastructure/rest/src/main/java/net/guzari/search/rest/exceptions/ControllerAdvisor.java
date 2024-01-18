@@ -7,6 +7,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -40,16 +41,6 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         ErrorDto errorDto = buildErrorDto(BAD_REQUEST, errorMessage);
 
         return new ResponseEntity<>(errorDto, HttpStatus.valueOf(BAD_REQUEST));
-    }
-
-    @ResponseBody
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ErrorDto> handleCustomException(CustomException ex) {
-        logger.error("Error occurred: {}", ex.getMessage(), ex);
-
-        ErrorDto errorDto = buildErrorDto(ex.getCode(), ex.getMessage());
-
-        return new ResponseEntity<>(errorDto, HttpStatus.valueOf(ex.getCode()));
     }
 
     @Override
@@ -88,8 +79,8 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     }
 
     @ResponseBody
-    @ExceptionHandler(IllegalArgumentException.class)
-    ResponseEntity<ErrorDto> handleIllegalArgumentException(IllegalArgumentException ex) {
+    @ExceptionHandler(AccessDeniedException.class)
+    ResponseEntity<ErrorDto> handleAccessDeniedException(AccessDeniedException ex) {
         logger.error("Error occurred: {}", ex.getMessage(), ex);
         ErrorDto errorDto = buildErrorDto(PAYMENT_REQUIRED, ex.getMessage());
         return new ResponseEntity<>(errorDto, HttpStatus.valueOf(errorDto.getCode()));

@@ -11,6 +11,7 @@ import net.guzari.search.grpc.UserResponse;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 @Aspect
@@ -25,17 +26,20 @@ public class FeatureCheckAspect {
 
     @Around("@annotation(checkFeatures)")
     public Object checkAccess(ProceedingJoinPoint joinPoint, CheckFeatures checkFeatures) throws Throwable {
-        UserResponse response = userFeatureServiceBlockingStub.findFeaturesByEmail(
-                UserRequest.newBuilder()
-                        .setEmail(userContext.getAuthenticatedUserEmail())
-                        .build());
+        UserResponse response = userFeatureServiceBlockingStub.findFeaturesByEmail(buildUserRequest());
 
         ProtocolStringList featuresList = response.getFeaturesList();
         String feature = checkFeatures.value().toString();
         if (!featuresList.contains(feature)) {
-            throw new IllegalArgumentException(String.format("%s feature is not available", feature));
+            throw new AccessDeniedException(String.format("%s feature is not available", feature));
         }
 
         return joinPoint.proceed();
+    }
+
+    private UserRequest buildUserRequest() {
+        return UserRequest.newBuilder()
+                .setEmail(userContext.getAuthenticatedUserEmail())
+                .build();
     }
 }
