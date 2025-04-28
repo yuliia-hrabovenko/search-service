@@ -7,6 +7,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -26,6 +27,7 @@ import static net.guzari.search.rest.exceptions.ExceptionUtil.buildErrorDto;
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
     public static final int BAD_REQUEST = 400;
+    public static final int PAYMENT_REQUIRED = 402;
     private final Logger logger = LoggerFactory.getLogger(ControllerAdvice.class);
 
     @ResponseBody
@@ -74,5 +76,13 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         logger.error("Error occurred: {}", ex.getMessage(), ex);
         return new ResponseEntity<>(ExceptionUtil.INTERNAL_SERVER_ERROR,
                 HttpStatus.valueOf(ExceptionUtil.INTERNAL_SERVER_ERROR.getCode()));
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AccessDeniedException.class)
+    ResponseEntity<ErrorDto> handleAccessDeniedException(AccessDeniedException ex) {
+        logger.error("Error occurred: {}", ex.getMessage(), ex);
+        ErrorDto errorDto = buildErrorDto(PAYMENT_REQUIRED, ex.getMessage());
+        return new ResponseEntity<>(errorDto, HttpStatus.valueOf(errorDto.getCode()));
     }
 }

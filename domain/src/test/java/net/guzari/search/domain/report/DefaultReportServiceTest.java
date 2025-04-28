@@ -17,6 +17,10 @@ public class DefaultReportServiceTest {
 
     @Mock
     private ReportRepository reportRepository;
+    @Mock
+    private UserContext userContext;
+    @Mock
+    private ReportNotification reportNotification;
     @InjectMocks
     private DefaultReportService defaultReportService;
 

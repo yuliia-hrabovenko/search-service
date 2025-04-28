@@ -7,6 +7,8 @@ dependencies {
     testImplementation libs.unitTest
     implementation 'org.springframework.data:spring-data-elasticsearch'
     implementation 'org.springframework.boot:spring-boot-starter-json'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation platform("org.testcontainers:testcontainers-bom:${libVersions.testcontainers}")
