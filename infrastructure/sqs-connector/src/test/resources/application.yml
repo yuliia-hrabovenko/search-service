@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    aws:
+      credentials:
+        access-key: accessKey
+        secret-key: secretKey
+      sqs:
+        endpoint: http://localhost:4566
+
+queue:
+  name: test-queue.fifo
+  message:
+    report-list-group-id: report-list-group-id
+    report-group-id: report-group-id

@@ -1,2 +1,31 @@
 server:
   port: 8002
+
+
+jwt:
+  secret: ${JWT_SECRET}
+
+grpc:
+  client:
+    grpc-server:
+      address: static://localhost:9090
+      negotiation-type: plaintext
+  server:
+    port: 9094
+
+spring:
+  cloud:
+    aws:
+      credentials:
+        access-key: ${SQS_ACCESS_KEY}
+        secret-key: ${SQS_SECRET_KEY}
+      region:
+        static: eu-central-1
+      sqs:
+        endpoint: ${SQS_ENDPOINT}/${SQS_QUEUE_NAME}
+
+queue:
+  name: ${SQS_QUEUE_NAME}
+  message:
+    report-list-group-id: report-list-group-id
+    report-group-id: report-group-id

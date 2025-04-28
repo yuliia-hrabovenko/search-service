@@ -8,4 +8,14 @@ dependencies {
     implementation libs.logging
 
     implementation "org.springframework:spring-context"
+
+    implementation 'software.amazon.awssdk:sqs:2.22.12'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+
+    testImplementation 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation platform("org.testcontainers:testcontainers-bom:${libVersions.testcontainers}")
+    testImplementation "org.testcontainers:junit-jupiter"
+    testImplementation "org.testcontainers:localstack"
 }
